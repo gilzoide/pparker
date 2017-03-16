@@ -1,0 +1,12 @@
+# backups de texto
+*~
+*.swp
+
+# cache do python
+*.pyc
+__pycache__/
+
+# saída de notícias
+noticias/
+*.json
+*.xml
