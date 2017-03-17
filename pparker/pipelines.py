@@ -5,20 +5,50 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-from scrapy.exporters import XmlItemExporter
+from .exporters import TxtItemExporter
 
 from os import path, makedirs
 
-class NoticiaPipeline(object):
+class LimpaCorpoNoticia(object):
+    """
+    Limpa o corpo de uma notícia, tirando tags HTML, e talz.
+
+    Para efetivamente limpar o corpo da notícia, implemente um método
+    `limpa_corpo` em sua spider.
+    """
+
+    saida_template = r"""<title>{titulo}</title>
+<subtitle>{subtitulo}</subtitle>
+<author>{autor}</author>
+<date>{data}</date>
+<url>{url}</url>
+
+{corpo}
+"""
+    def process_item(self, item, spider):
+        limpador = getattr(spider, 'limpa_corpo', id)
+        item['final'] = LimpaCorpoNoticia.saida_template.format(
+            titulo=item['titulo'],
+            subtitulo=item['subtitulo'],
+            autor=item['autor'],
+            data=item['data'],
+            url=item['url'],
+            corpo=limpador(item['corpo']),
+        )
+        return item
+
+
+class SalvaNoLugar(object):
     """Pipeline que exporta cada item da lista em seu arquivo"""
     def process_item(self, item, spider):
         subpasta = path.join('noticias', spider.name, item['editoria_principal'])
         makedirs(subpasta, exist_ok=True)
-        nome_arquivo = path.join(subpasta, item['titulo']) + '.xml'
+        nome_arquivo = path.join(subpasta, item['titulo']) + '.txt'
         with open(nome_arquivo, 'w') as arquivo:
-            exp = XmlItemExporter(arquivo, root_element='noticia')
+            exp = TxtItemExporter(arquivo)
             exp.start_exporting()
-            exp.export_item(item)
+            exp.export_item(item['final'])
             exp.finish_exporting()
 
         return item
+
