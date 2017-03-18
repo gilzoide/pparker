@@ -21,7 +21,7 @@ class GalileuSpider(scrapy.Spider):
         if data['itensObtidos']:
             for dado in data['conteudos']:
                 yield {
-                    'autor': dado['autor'],
+                    'autor': ', '.join(dado['autor']),
                     'data': dado['data_ptbr'],
                     'editorias': dado['editorias'],
                     'editoria_principal': dado['editoria_principal'],
@@ -35,8 +35,9 @@ class GalileuSpider(scrapy.Spider):
             yield scrapy.Request(next_url)
 
     # Algumas Regex pra limpar textos
-    foto_re = r"\(Foto:[^)]+\)"
-    possivel_subtitulo_re = r"(.+)[^.:;!?\n]\n"
+    foto_re = r"\(\w+:[^)]+\)"
+    leia_mais_re = r"Leia\s+(mais|também)\s*:\s*(.|\n)+?\n(\n|$)"
+    varias_linhas_re = r"\n\s*\n"
 
     @staticmethod
     def limpa_corpo(corpo):
@@ -44,19 +45,14 @@ class GalileuSpider(scrapy.Spider):
         Pós-processamento do corpo, retirando tags HTML e outros ruídos da
         notícia, como "(Foto: <explicação>)", "Leia ['mais' | 'também']:<lista>"
         """
-        def possivel_subtitulo(match):
-            linha = match.group(0)
-            print(linha)
-            eh_foto = re.match(GalileuSpider.foto_re, linha)
-            if eh_foto:
-                return linha[0:eh_foto.pos]
-            else:
-                return linha
         texto = corpo
         texto = html.replace_entities(texto)
         texto = html.replace_escape_chars(texto, which_ones=('\r',))
+        # TODO: adicionar subtítulos
         texto = html.remove_tags(texto)
-        #  texto = re.sub(GalileuSpider.possivel_subtitulo_re, possivel_subtitulo, texto)
+        texto = re.sub(GalileuSpider.leia_mais_re, '', texto)
+        texto = re.sub(GalileuSpider.foto_re, '', texto)
+        texto = re.sub(GalileuSpider.varias_linhas_re, '\n\n', texto)
 
         return texto
 
