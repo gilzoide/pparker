@@ -19,17 +19,18 @@ class LimpaCorpoNoticia(object):
 
     saida_template = r"""<title>{titulo}</title>
 <subtitle>{subtitulo}</subtitle>
+<category>{categoria}</category>
 <author>{autor}</author>
 <date>{data}</date>
 <url>{url}</url>
 
-{corpo}
-"""
+{corpo}"""
     def process_item(self, item, spider):
         limpador = getattr(spider, 'limpa_corpo', id)
         item['final'] = LimpaCorpoNoticia.saida_template.format(
             titulo=item['titulo'],
             subtitulo=item['subtitulo'],
+            categoria=item['categoria'],
             autor=item['autor'],
             data=item['data'],
             url=item['url'],
@@ -41,9 +42,9 @@ class LimpaCorpoNoticia(object):
 class SalvaNoLugar(object):
     """Pipeline que exporta cada item da lista em seu arquivo"""
     def process_item(self, item, spider):
-        subpasta = path.join('noticias', spider.name, item['editoria_principal'])
+        subpasta = path.join('noticias', spider.name, item['categoria_principal'])
         makedirs(subpasta, exist_ok=True)
-        nome_arquivo = path.join(subpasta, item['titulo']) + '.txt'
+        nome_arquivo = path.join(subpasta, item['titulo'].replace(' ', '_')) + '.txt'
         with open(nome_arquivo, 'w') as arquivo:
             exp = TxtItemExporter(arquivo)
             exp.start_exporting()
