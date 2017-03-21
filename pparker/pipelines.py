@@ -42,7 +42,8 @@ class LimpaCorpoNoticia(object):
 class SalvaNoLugar(object):
     """Pipeline que exporta cada item da lista em seu arquivo"""
     def process_item(self, item, spider):
-        subpasta = path.join('noticias', spider.name, item['categoria_principal'])
+        pasta_saida = path.expanduser(spider.settings.get('DIRETORIO_SAIDA'))
+        subpasta = path.join(pasta_saida, spider.name, item['categoria_principal'])
         makedirs(subpasta, exist_ok=True)
         nome_arquivo = path.join(subpasta, item['titulo'].replace(' ', '_')) + '.txt'
         with open(nome_arquivo, 'w') as arquivo:

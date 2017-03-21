@@ -31,6 +31,10 @@ seguintes comandos::
     $ scrapy crawl --set DEPTH_LIMIT=0 galileu
     $ scrapy crawl --set DEPTH_LIMIT=0 super
 
+Para alterar a pasta de destino das notícias, utilize a opção ``DIRETORIO_SAIDA``::
+
+    $ scrapy crawl --set DIRETORIO_SAIDA=caminho_das_noticias galileu
+
 Saídas
 ======
 As notícias coletadas são armazenadas na pasta "noticias", em subpastas
