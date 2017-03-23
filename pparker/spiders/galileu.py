@@ -14,22 +14,24 @@ def monta_url(pagina):
 class GalileuSpider(scrapy.Spider):
     name = "galileu"
     allowed_domains = ["revistagalileu.globo.com"]
-    start_urls = [monta_url(1)]
+    def start_requests(self):
+        yield scrapy.Request(monta_url(self.settings.get('PAGINA_INICIAL')))
 
     def parse(self, response):
         data = json.loads(response.body)
         if data['itensObtidos']:
             for dado in data['conteudos']:
-                yield {
-                    'autor': ', '.join(dado['autor']),
-                    'data': dado['data_ptbr'],
-                    'categoria': ','.join(dado['editorias']),
-                    'categoria_principal': dado['editoria_principal'],
-                    'url': dado['permalink'],
-                    'titulo': dado['titulo'],
-                    'subtitulo': dado['subtitulo'],
-                    'corpo': dado['corpo'],
-                }
+                if dado.get('corpo'):
+                    yield {
+                        'autor': ', '.join(dado['autor']),
+                        'data': dado['data_ptbr'],
+                        'categoria': ','.join(dado['editorias']),
+                        'categoria_principal': dado['editoria_principal'],
+                        'url': dado['permalink'],
+                        'titulo': dado['titulo'],
+                        'subtitulo': dado['subtitulo'],
+                        'corpo': dado['corpo'],
+                    }
             proxima_pagina = int(data['paginaAtual']) + 1
             next_url = monta_url(proxima_pagina)
             yield scrapy.Request(next_url)

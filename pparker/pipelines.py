@@ -7,6 +7,7 @@
 
 from .exporters import TxtItemExporter
 
+import re
 from os import path, makedirs
 
 class LimpaCorpoNoticia(object):
@@ -26,7 +27,7 @@ class LimpaCorpoNoticia(object):
 
 {corpo}"""
     def process_item(self, item, spider):
-        limpador = getattr(spider, 'limpa_corpo', id)
+        limpador = getattr(spider, 'limpa_corpo', lambda x: x)
         item['final'] = LimpaCorpoNoticia.saida_template.format(
             titulo=item['titulo'],
             subtitulo=item['subtitulo'],
@@ -43,9 +44,9 @@ class SalvaNoLugar(object):
     """Pipeline que exporta cada item da lista em seu arquivo"""
     def process_item(self, item, spider):
         pasta_saida = path.expanduser(spider.settings.get('DIRETORIO_SAIDA'))
-        subpasta = path.join(pasta_saida, spider.name, item['categoria_principal'])
+        subpasta = path.join(pasta_saida, spider.name, item['categoria_principal'].title())
         makedirs(subpasta, exist_ok=True)
-        nome_arquivo = path.join(subpasta, item['titulo'].replace(' ', '_')) + '.txt'
+        nome_arquivo = path.join(subpasta, re.sub(r'\W', '_', item['titulo'])) + '.txt'
         with open(nome_arquivo, 'w') as arquivo:
             exp = TxtItemExporter(arquivo)
             exp.start_exporting()

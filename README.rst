@@ -28,12 +28,12 @@ Note que, por enquanto, PParker busca somente 20 notícias, para facilitar os
 testes. Para baixar todas as notícias disponíveis (o que demora), utilize os
 seguintes comandos::
 
-    $ scrapy crawl --set DEPTH_LIMIT=0 galileu
-    $ scrapy crawl --set DEPTH_LIMIT=0 super
+    $ scrapy crawl -s DEPTH_LIMIT=0 galileu
+    $ scrapy crawl -s DEPTH_LIMIT=0 super
 
 Para alterar a pasta de destino das notícias, utilize a opção ``DIRETORIO_SAIDA``::
 
-    $ scrapy crawl --set DIRETORIO_SAIDA=caminho_das_noticias galileu
+    $ scrapy crawl -s DIRETORIO_SAIDA=caminho_das_noticias galileu
 
 Saídas
 ======
