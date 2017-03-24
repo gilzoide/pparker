@@ -30,7 +30,7 @@ class LimpaCorpoNoticia(object):
         limpador = getattr(spider, 'limpa_corpo', lambda x: x)
         item['final'] = LimpaCorpoNoticia.saida_template.format(
             titulo=item['titulo'],
-            subtitulo=item['subtitulo'],
+            subtitulo=item.get('subtitulo') or '',
             categoria=item['categoria'],
             autor=item['autor'],
             data=item['data'],
@@ -40,11 +40,19 @@ class LimpaCorpoNoticia(object):
         return item
 
 
+class NomePastaDestino(object):
+    """Ajeita o nome da pasta destino, sendo o padrão a categoria_principal"""
+    def process_item(self, item, spider):
+        if item.get('pasta_destino') is None:
+            item['pasta_destino'] = item['categoria_principal'].title()
+        return item
+
+
 class SalvaNoLugar(object):
-    """Pipeline que exporta cada item da lista em seu arquivo"""
+    """Exporta cada item da lista em seu arquivo"""
     def process_item(self, item, spider):
         pasta_saida = path.expanduser(spider.settings.get('DIRETORIO_SAIDA'))
-        subpasta = path.join(pasta_saida, spider.name, item['categoria_principal'].title())
+        subpasta = path.join(pasta_saida, spider.name, item['pasta_destino'])
         makedirs(subpasta, exist_ok=True)
         nome_arquivo = path.join(subpasta, re.sub(r'\W', '_', item['titulo'])) + '.txt'
         with open(nome_arquivo, 'w') as arquivo:

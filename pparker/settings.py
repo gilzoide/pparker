@@ -65,7 +65,8 @@ ROBOTSTXT_OBEY = True
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
   'pparker.pipelines.LimpaCorpoNoticia': 300,
-  'pparker.pipelines.SalvaNoLugar': 400,
+  'pparker.pipelines.NomePastaDestino': 400,
+  'pparker.pipelines.SalvaNoLugar': 900,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

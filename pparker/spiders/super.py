@@ -29,6 +29,9 @@ class SuperSpider(scrapy.Spider):
             next_url = monta_url(self.pagina)
             yield scrapy.Request(next_url)
 
+
+    tava_na_exame_re = r"Este.+Exame\.com.*$"
+
     def extrai_noticia(self, response):
         header = response.css('article header')
         titulo = header.css('h1.article-title::text').extract_first()
@@ -43,7 +46,6 @@ class SuperSpider(scrapy.Spider):
         categoria_principal = '/'.join(url.split('/')[3:-2])
 
         corpo = '\n'.join(response.css('article section.article-content > p').extract())
-
         yield {
             'autor': autor,
             'data': data,
@@ -53,7 +55,11 @@ class SuperSpider(scrapy.Spider):
             'titulo': titulo,
             'subtitulo': subtitulo,
             'corpo': corpo,
+            # se for notícia originalmente da Exame, manda pra pasta especial
+            'pasta_destino': 'Noticias_Exame' if re.search(SuperSpider.tava_na_exame_re, corpo) else None
         }
+
+
 
     # Algumas Regex pra limpar textos
     rodape_re = r"^(Fontes|Post anterior):.+$|^\W+$"
@@ -66,6 +72,7 @@ class SuperSpider(scrapy.Spider):
         texto = texto.replace('<p>', '<p>\t')
         texto = html2txt_com_subtitulos(texto)
         texto = re.sub(r'^\t+', '', texto, flags=re.MULTILINE)
+        texto = re.sub(SuperSpider.tava_na_exame_re, '', texto)
         texto = re.sub(SuperSpider.rodape_re, '', texto, flags=re.MULTILINE)
         texto = re.sub(SuperSpider.linha_em_subtitulo_re, '</subtitle>', texto)
         texto = re.sub(SuperSpider.varias_linhas_re, '\n\n', texto)
