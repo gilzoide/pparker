@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+
 import scrapy
 
+from .html2txt_com_subtitulos import html2txt_com_subtitulos
+
 import json
-from pprint import pprint
+import re
 
 def monta_url(pagina):
     """Monta a URL da página desejada usando uma base comum"""
@@ -19,7 +22,7 @@ class SuperSpider(scrapy.Spider):
     def parse(self, response):
         data = json.loads(response.body)
         for url in data['postflair'].keys():
-            if '/videos/' not in url:
+            if not ('/videos/' in url or '/testes/' in url):
                 yield scrapy.Request(url, callback=self.extrai_noticia)
         if not data['lastbatch']:
             self.pagina += 1
@@ -39,7 +42,7 @@ class SuperSpider(scrapy.Spider):
         categorias = response.css('article section.article-tags a::text').extract()
         categoria_principal = '/'.join(url.split('/')[3:-2])
 
-        corpo = response.css('article section.article-content').extract_first()
+        corpo = '\n'.join(response.css('article section.article-content > p').extract())
 
         yield {
             'autor': autor,
@@ -51,4 +54,20 @@ class SuperSpider(scrapy.Spider):
             'subtitulo': subtitulo,
             'corpo': corpo,
         }
+
+    # Algumas Regex pra limpar textos
+    rodape_re = r"^(Fontes|Post anterior):.+$|^\W+$"
+    varias_linhas_re = r"\n\s+\n"
+    linha_em_subtitulo_re = r"\n+</subtitle>"
+
+    @staticmethod
+    def limpa_corpo(corpo):
+        texto = corpo
+        texto = texto.replace('<p>', '<p>\t')
+        texto = html2txt_com_subtitulos(texto)
+        texto = re.sub(r'^\t+', '', texto, flags=re.MULTILINE)
+        texto = re.sub(SuperSpider.rodape_re, '', texto, flags=re.MULTILINE)
+        texto = re.sub(SuperSpider.linha_em_subtitulo_re, '</subtitle>', texto)
+        texto = re.sub(SuperSpider.varias_linhas_re, '\n\n', texto)
+        return texto
 

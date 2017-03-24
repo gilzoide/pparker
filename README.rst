@@ -1,8 +1,7 @@
 PParker
 =======
 Aranhas que buscam notícias usando scrapy_. Notícias são tiradas dos sites
-das revistas Galileu_ e `Super Interessante`_. Por enquanto, somente a aranha
-``galileu`` está implementada.
+das revistas Galileu_ e `Super Interessante`_.
 
 .. _scrapy: https://scrapy.org/
 .. _python 3: https://www.python.org/
