@@ -10,6 +10,9 @@ from .exporters import TxtItemExporter
 import re
 from os import path, makedirs
 
+def limpa_caminho(caminho):
+    return re.sub(r'\W', '_', caminho)
+
 class LimpaCorpoNoticia(object):
     """
     Limpa o corpo de uma notícia, tirando tags HTML, e talz.
@@ -53,8 +56,9 @@ class SalvaNoLugar(object):
     def process_item(self, item, spider):
         pasta_saida = path.expanduser(spider.settings.get('DIRETORIO_SAIDA'))
         subpasta = path.join(pasta_saida, spider.name, item['pasta_destino'])
+        subpasta = limpa_caminho(subpasta)
         makedirs(subpasta, exist_ok=True)
-        nome_arquivo = path.join(subpasta, re.sub(r'\W', '_', item['titulo'])) + '.txt'
+        nome_arquivo = path.join(subpasta, limpa_caminho(item['titulo'])) + '.txt'
         with open(nome_arquivo, 'w') as arquivo:
             exp = TxtItemExporter(arquivo)
             exp.start_exporting()
