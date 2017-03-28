@@ -10,8 +10,8 @@ from .exporters import TxtItemExporter
 import re
 from os import path, makedirs
 
-def limpa_caminho(caminho):
-    return re.sub(r'\W', '_', caminho)
+def limpa_caminho(caminho, eh_pasta=False):
+    return re.sub(r'[^\w/]' if eh_pasta else r'\W', '_', caminho)
 
 class LimpaCorpoNoticia(object):
     """
@@ -55,8 +55,7 @@ class SalvaNoLugar(object):
     """Exporta cada item da lista em seu arquivo"""
     def process_item(self, item, spider):
         pasta_saida = path.expanduser(spider.settings.get('DIRETORIO_SAIDA'))
-        subpasta = path.join(pasta_saida, spider.name, item['pasta_destino'])
-        subpasta = limpa_caminho(subpasta)
+        subpasta = path.join(pasta_saida, spider.name, limpa_caminho(item['pasta_destino'], True))
         makedirs(subpasta, exist_ok=True)
         nome_arquivo = path.join(subpasta, limpa_caminho(item['titulo'])) + '.txt'
         with open(nome_arquivo, 'w') as arquivo:

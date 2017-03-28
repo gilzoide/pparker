@@ -20,6 +20,7 @@ def html2txt_com_subtitulos(corpo):
 
     todas_tags = re.findall(tag_re, corpo)
     for tag, txt in todas_tags:
+        tag = tag.partition(' ')[0]
         if tag in ['/p', 'br', 'br /']:
             resultado.append('\n')
         if tag in ['strong', 'b'] and checa_subtitulo():
@@ -30,15 +31,15 @@ def html2txt_com_subtitulos(corpo):
                 resultado.insert(indice_subtitulo, '<subtitle>')
                 resultado.append('</subtitle>')
             eh_subtitulo = False
-        resultado.append(html.unescape(txt))
+        if tag == 'p' or len(pilha_tags) > 0 and pilha_tags[0] == 'p':
+            resultado.append(html.unescape(txt))
         # Empilha/desempilha tags
         if not tag.endswith('/'):
             if not tag.startswith('/'):
-                pilha_tags.append(tag.partition(' ')[0])
+                pilha_tags.append(tag)
             else:
-                pilha_tags.pop()
-
-    
+                while pilha_tags.pop() != tag[1:]:
+                    pass
 
     return ''.join(resultado)
 

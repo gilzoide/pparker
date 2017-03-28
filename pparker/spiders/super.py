@@ -69,7 +69,7 @@ class SuperSpider(scrapy.Spider):
     @staticmethod
     def limpa_corpo(corpo):
         texto = corpo
-        texto = texto.replace('<p>', '<p>\t')
+        texto = re.sub(r'<p>|<p [^>]+>', '<p>\t', texto)
         texto = html2txt_com_subtitulos(texto)
         texto = re.sub(r'^\t+', '', texto, flags=re.MULTILINE)
         texto = re.sub(SuperSpider.tava_na_exame_re, '', texto)

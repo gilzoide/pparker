@@ -40,7 +40,8 @@ class GalileuSpider(scrapy.Spider):
 
     # Algumas Regex pra limpar textos
     foto_re = r"\(\w+:[^)]+\)"
-    leia_mais_re = r"Leia\s+(mais|também)\s*:(\s*\+[^\n]+)+"
+    leia_mais_re = r"Leia\s+(mais|também)\s*:.*"
+    comeca_mais_ou_asterisco_re = r"^\s*[+*].+$"
     fontes_re = r"Fontes?:.+\n|\([^)]+\)\n"
     varias_linhas_re = r"\n\s+\n"
 
@@ -53,8 +54,9 @@ class GalileuSpider(scrapy.Spider):
         texto = corpo
         texto = texto.replace('\r', '')
         texto = html2txt_com_subtitulos(texto)
-        texto = re.sub(GalileuSpider.leia_mais_re, '', texto)
-        #  texto = re.sub(GalileuSpider.foto_re, '', texto)
+        texto = re.sub(GalileuSpider.leia_mais_re, '', texto, flags=re.MULTILINE)
+        texto = re.sub(GalileuSpider.comeca_mais_ou_asterisco_re, '', texto, flags=re.MULTILINE)
+        texto = re.sub(GalileuSpider.foto_re, '', texto)
         texto = re.sub(GalileuSpider.fontes_re, '', texto)
         # último passo: comprimir o monte de linhas juntas
         texto = re.sub(r'^\t+', '', texto, flags=re.MULTILINE)
