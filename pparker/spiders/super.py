@@ -38,8 +38,8 @@ class SuperSpider(scrapy.Spider):
         subtitulo = header.css('h2.article-subtitle::text').extract_first()
         data = header.css('div.article-date span::text').extract_first().strip().partition(',')[0]
         # Autor tem vários formatos: pega o que não tem o texto "Por" (segundo)
-        header_autor = header.css('div.article-author')
-        autor = header_autor.xpath('descendant::text()').extract()[1]
+        header_autor = header.css('div.article-author').xpath('descendant::text()').extract()
+        autor = header_autor[1] if len(header_autor) > 1 else None
         url = response.url
         # Categorias no rodapé: "TUDO SOBRE"
         categorias = response.css('article section.article-tags a::text').extract()
@@ -63,6 +63,7 @@ class SuperSpider(scrapy.Spider):
 
     # Algumas Regex pra limpar textos
     rodape_re = r"^(Fontes|Post anterior):.+$|^\W+$"
+    comeca_mais_ou_asterisco_re = r"^\s*[+*].+$"
     varias_linhas_re = r"\n\s+\n"
     linha_em_subtitulo_re = r"\n+</subtitle>"
 
@@ -73,6 +74,7 @@ class SuperSpider(scrapy.Spider):
         texto = html2txt_com_subtitulos(texto)
         texto = re.sub(r'^\t+', '', texto, flags=re.MULTILINE)
         texto = re.sub(SuperSpider.tava_na_exame_re, '', texto)
+        texto = re.sub(SuperSpider.comeca_mais_ou_asterisco_re, '', texto, flags=re.MULTILINE)
         texto = re.sub(SuperSpider.rodape_re, '', texto, flags=re.MULTILINE)
         texto = re.sub(SuperSpider.linha_em_subtitulo_re, '</subtitle>', texto)
         texto = re.sub(SuperSpider.varias_linhas_re, '\n\n', texto)

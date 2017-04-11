@@ -58,7 +58,7 @@ class GalileuSpider(scrapy.Spider):
         texto = re.sub(GalileuSpider.comeca_mais_ou_asterisco_re, '', texto, flags=re.MULTILINE)
         texto = re.sub(GalileuSpider.foto_re, '', texto)
         texto = re.sub(GalileuSpider.fontes_re, '', texto)
-        # último passo: comprimir o monte de linhas juntas
+        # último passo: comprimir o monte de espaços em branco
         texto = re.sub(r'^\t+', '', texto, flags=re.MULTILINE)
         texto = re.sub(GalileuSpider.varias_linhas_re, '\n\n', texto)
         return texto

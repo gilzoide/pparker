@@ -31,16 +31,17 @@ class LimpaCorpoNoticia(object):
 {corpo}"""
     def process_item(self, item, spider):
         limpador = getattr(spider, 'limpa_corpo', lambda x: x)
-        item['final'] = LimpaCorpoNoticia.saida_template.format(
-            titulo=item['titulo'],
-            subtitulo=item.get('subtitulo') or '',
-            categoria=item['categoria'],
-            autor=item['autor'],
-            data=item['data'],
-            url=item['url'],
-            corpo=limpador(item['corpo']),
-        )
-        return item
+        if not (item.get('titulo') is None and item.get('subtitulo') is None):
+            item['final'] = LimpaCorpoNoticia.saida_template.format(
+                titulo=item['titulo'] or item['subtitulo'],
+                subtitulo=item['subtitulo'] or '',
+                categoria=item['categoria'],
+                autor=item['autor'] or '',
+                data=item['data'],
+                url=item['url'],
+                corpo=limpador(item['corpo']),
+            )
+            return item
 
 
 class NomePastaDestino(object):
