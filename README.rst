@@ -42,3 +42,9 @@ Saídas
 As notícias coletadas são armazenadas na pasta "noticias", em subpastas
 específicas da revista e seções da mesma. Cada arquivo é uma notícia
 individual.
+
+Curiosidade
+===========
+**Por que PParker?**
+
+É uma aranha que busca notícias, quem isso te lembra? =P
